@@ -26,7 +26,9 @@
   function getSlideText(items) {
       let el = document.createElement('div');
       el.innerHTML = items[index].text;
-      let text = items[index].title ? items[index].title + '. ' : '';
+      let titleEl = document.createElement('div');
+      titleEl.innerHTML = items[index].title || '';
+      let text = titleEl.textContent ? titleEl.textContent + '. ' : '';
       text += el.textContent || el.innerText || '';
       return text;
   }
@@ -52,6 +54,10 @@
       }
   }
 
+  function stripSvg(html) {
+      return html.replace(/<svg[^>]*>[\s\S]*?<\/svg>/gi, '');
+  }
+
   async function exportPDF(items) {
       stopSpeech();
       exporting = true;
@@ -73,21 +79,27 @@
       for (let i = 0; i < items.length; i++) {
           // Build slide HTML in the offscreen container
           const slideEl = document.createElement('div');
-          slideEl.style.cssText = 'width:' + renderW + 'px;height:' + renderH + 'px;background:#294582;color:white;text-align:center;font-size:16px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;display:flex;flex-direction:column;box-sizing:border-box;border:2px solid rgba(255,255,255,0.2);border-radius:8px;overflow:hidden;';
+          slideEl.style.cssText = 'width:' + renderW + 'px;height:' + renderH + 'px;background:linear-gradient(180deg,#243b6e 0%,#1e3260 100%);color:white;text-align:center;font-size:20px;font-weight:400;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;display:flex;flex-direction:column;box-sizing:border-box;border:2px solid rgba(255,255,255,0.25);border-radius:12px;overflow:hidden;';
+
+          // Title bar
+          var cleanTitle = stripSvg(items[i].title || '');
+          if (cleanTitle.trim()) {
+              const headerEl = document.createElement('div');
+              headerEl.style.cssText = 'padding:12px 40px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0;';
+              const h1 = document.createElement('h1');
+              h1.innerHTML = cleanTitle;
+              h1.style.cssText = 'text-transform:uppercase;font-size:24px;font-weight:100;font-family:Nanum Myeongjo,serif;margin:0;letter-spacing:0.05em;';
+              headerEl.appendChild(h1);
+              slideEl.appendChild(headerEl);
+          }
 
           // Content area
           const contentEl = document.createElement('div');
-          contentEl.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 50px 20px 50px;overflow:hidden;';
+          contentEl.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 50px 15px 50px;overflow:hidden;text-align:center;';
 
-          if (items[i].title) {
-              const h1 = document.createElement('h1');
-              h1.textContent = items[i].title;
-              h1.style.cssText = 'text-transform:uppercase;font-size:28px;font-weight:100;font-family:Nanum Myeongjo,serif;margin:5px 0 10px 0;width:100%;';
-              contentEl.appendChild(h1);
-          }
-
+          var cleanText = stripSvg(items[i].text);
           const bodyDiv = document.createElement('div');
-          bodyDiv.innerHTML = items[i].text;
+          bodyDiv.innerHTML = cleanText;
           bodyDiv.style.cssText = 'width:100%;';
           // Fix images to use absolute pixel sizes for PDF
           const imgs = bodyDiv.querySelectorAll('img');
@@ -95,13 +107,16 @@
               if (img.style.width && img.style.width.includes('vmin')) {
                   img.style.width = '100px';
               }
+              if (img.style.height && img.style.height.includes('vmin')) {
+                  img.style.height = '50px';
+              }
           });
           contentEl.appendChild(bodyDiv);
           slideEl.appendChild(contentEl);
 
           // Footer
           const footerEl = document.createElement('div');
-          footerEl.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 0;border-top:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.15);';
+          footerEl.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:10px;padding:6px 0;border-top:1px solid rgba(255,255,255,0.12);background:rgba(0,0,0,0.2);flex-shrink:0;';
           footerEl.innerHTML = '<img src="FGL_logo.png" style="height:20px;width:auto;" alt="FGL"/><span style="color:rgba(255,255,255,0.6);font-size:11px;">Slide ' + (i + 1) + ' of ' + items.length + '</span>';
           slideEl.appendChild(footerEl);
 
@@ -119,7 +134,7 @@
               width: renderW,
               height: renderH,
               scale: 2,
-              backgroundColor: '#294582',
+              backgroundColor: '#1e3260',
               useCORS: true
           });
 
@@ -156,24 +171,23 @@
 
 <style>
   .slide-wrapper {
-      background-color: #1a2d5a;
+      background-color: #0f1e3d;
       width: 100vw;
       height: 100vh;
       display: flex;
       flex-direction: column;
       box-sizing: border-box;
-      padding: 16px;
+      padding: 12px;
   }
 
   .slide {
-      background-color: #294582;
+      background: linear-gradient(180deg, #243b6e 0%, #1e3260 100%);
       color: white;
-      text-align: center;
-      font-size: 2.2vmin;
-      font-weight: 10;
+      font-size: 2.8vmin;
+      font-weight: 400;
       flex: 1;
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-radius: 12px;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
@@ -181,14 +195,26 @@
       overflow: hidden;
   }
 
+  .slide-header {
+      padding: 1.2vh 3vw 0 3vw;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      min-height: 2.2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+  }
+
   .slide-content {
       flex: 1;
       overflow: hidden;
-      padding: 2vh 4vw 1vh 4vw;
+      padding: 1.5vh 3vw 1vh 3vw;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      text-align: center;
   }
 
   .slide-mobile {
@@ -196,34 +222,31 @@
   }
 
   .slide-mobile .slide-content {
-      padding: 2vh 3vw 1vh 3vw;
+      padding: 1.5vh 3vw 1vh 3vw;
   }
 
   .deskh1 {
       text-transform: uppercase;
       font-size: 1.5em;
-      font-weight: 100;
+      font-weight: 300;
       font-family: 'Nanum Myeongjo', serif;
-      margin: 0.5vh 0 0.5vh 0;
-      width: 100%;
+      margin: 0;
+      letter-spacing: 0.05em;
+      color: rgba(255, 255, 255, 0.95);
   }
 
   .mobileh1 {
       text-transform: uppercase;
       font-family: 'Nanum Myeongjo', serif;
-      margin: 1vh 0 1vh 0;
-      width: 100%;
+      margin: 0;
+      letter-spacing: 0.05em;
   }
 
   .deskpad {
-      padding-left: 3vw;
-      padding-right: 3vw;
       width: 100%;
   }
 
   .mobilepad {
-      padding-left: 2vw;
-      padding-right: 2vw;
       width: 100%;
   }
 
@@ -232,19 +255,20 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      padding: 8px 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.15);
-      background-color: rgba(0, 0, 0, 0.15);
+      padding: 9px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      background-color: rgba(0, 0, 0, 0.2);
+      flex-shrink: 0;
   }
 
   .footer img {
-      height: 24px;
+      height: 30px;
       width: auto;
   }
 
   .footer span {
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 17px;
       letter-spacing: 0.05em;
   }
 
@@ -298,9 +322,13 @@
   {#if matches}
     <div class="slide-wrapper">
       <div class="slide slide-mobile">
+        {#if infoMobile[index].title}
+          <div class="slide-header">
+            <h1 class="mobileh1">{@html infoMobile[index].title}</h1>
+          </div>
+        {/if}
         <div class="slide-content">
-          <h1 class="mobileh1">{infoMobile[index].title}</h1>
-          <p class="mobilepad">{@html infoMobile[index].text}</p>
+          <div class="mobilepad">{@html infoMobile[index].text}</div>
         </div>
         <div class="footer">
           <img src="FGL_logo.png" alt="FGL" />
@@ -317,9 +345,13 @@
   {:else}
     <div class="slide-wrapper">
       <div class="slide">
+        {#if infoDesk[index].title}
+          <div class="slide-header">
+            <h1 class="deskh1">{@html infoDesk[index].title}</h1>
+          </div>
+        {/if}
         <div class="slide-content">
-          <h1 class="deskh1">{infoDesk[index].title}</h1>
-          <p class="deskpad">{@html infoDesk[index].text}</p>
+          <div class="deskpad">{@html infoDesk[index].text}</div>
         </div>
         <div class="footer">
           <img src="FGL_logo.png" alt="FGL" />
