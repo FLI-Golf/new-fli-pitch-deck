@@ -102,13 +102,17 @@
           bodyDiv.innerHTML = cleanText;
           bodyDiv.style.cssText = 'width:100%;';
           // Fix images to use absolute pixel sizes for PDF
+          // 1vmin = min(renderW, renderH) / 100 = 720/100 = 7.2px
+          const pxPerVmin = Math.min(renderW, renderH) / 100;
           const imgs = bodyDiv.querySelectorAll('img');
           imgs.forEach(img => {
               if (img.style.width && img.style.width.includes('vmin')) {
-                  img.style.width = '100px';
+                  var val = parseFloat(img.style.width);
+                  img.style.width = Math.round(val * pxPerVmin) + 'px';
               }
               if (img.style.height && img.style.height.includes('vmin')) {
-                  img.style.height = '50px';
+                  var val = parseFloat(img.style.height);
+                  img.style.height = Math.round(val * pxPerVmin) + 'px';
               }
           });
           contentEl.appendChild(bodyDiv);
