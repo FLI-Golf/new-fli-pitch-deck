@@ -79,7 +79,7 @@
       for (let i = 0; i < items.length; i++) {
           // Build slide HTML in the offscreen container
           const slideEl = document.createElement('div');
-          slideEl.style.cssText = 'width:' + renderW + 'px;height:' + renderH + 'px;background:linear-gradient(180deg,#243b6e 0%,#1e3260 100%);color:white;text-align:center;font-size:16px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;display:flex;flex-direction:column;box-sizing:border-box;border:2px solid rgba(255,255,255,0.25);border-radius:12px;overflow:hidden;';
+          slideEl.style.cssText = 'width:' + renderW + 'px;height:' + renderH + 'px;background:linear-gradient(180deg,#243b6e 0%,#1e3260 100%);color:white;text-align:center;font-size:20px;font-weight:400;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;display:flex;flex-direction:column;box-sizing:border-box;border:2px solid rgba(255,255,255,0.25);border-radius:12px;overflow:hidden;';
 
           // Title bar
           var cleanTitle = stripSvg(items[i].title || '');
@@ -183,8 +183,8 @@
   .slide {
       background: linear-gradient(180deg, #243b6e 0%, #1e3260 100%);
       color: white;
-      font-size: 2.2vmin;
-      font-weight: 10;
+      font-size: 2.8vmin;
+      font-weight: 400;
       flex: 1;
       border: 2px solid rgba(255, 255, 255, 0.25);
       border-radius: 12px;
@@ -227,8 +227,8 @@
 
   .deskh1 {
       text-transform: uppercase;
-      font-size: 1.4em;
-      font-weight: 100;
+      font-size: 1.5em;
+      font-weight: 300;
       font-family: 'Nanum Myeongjo', serif;
       margin: 0;
       letter-spacing: 0.05em;
@@ -255,20 +255,20 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      padding: 6px 0;
+      padding: 9px 0;
       border-top: 1px solid rgba(255, 255, 255, 0.12);
       background-color: rgba(0, 0, 0, 0.2);
       flex-shrink: 0;
   }
 
   .footer img {
-      height: 20px;
+      height: 30px;
       width: auto;
   }
 
   .footer span {
       color: rgba(255, 255, 255, 0.5);
-      font-size: 11px;
+      font-size: 17px;
       letter-spacing: 0.05em;
   }
 
